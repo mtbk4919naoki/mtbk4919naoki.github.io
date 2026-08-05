@@ -1,0 +1,10 @@
+{
+  "name": "mtbk4919naoki",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "chaindrop:scan": "node scripts/chaindrop-scan.mjs",
+    "chaindrop:scan:fetch": "node scripts/chaindrop-scan.mjs --fetch"
+  },
+  "trustedDependencies": []
+}

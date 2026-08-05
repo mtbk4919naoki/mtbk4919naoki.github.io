@@ -1,0 +1,64 @@
+name: chaindrop-scan
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'yarn.lock'
+      - '.npmrc'
+      - '.yarnrc.yml'
+      - 'bunfig.toml'
+      - 'pnpm-workspace.yaml'
+      - 'scripts/chaindrop-scan.mjs'
+      - '.github/workflows/chaindrop-scan.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'yarn.lock'
+      - '.npmrc'
+      - '.yarnrc.yml'
+      - 'bunfig.toml'
+      - 'pnpm-workspace.yaml'
+      - 'scripts/chaindrop-scan.mjs'
+      - '.github/workflows/chaindrop-scan.yml'
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      fetch:
+        description: 'Force fetch IOC list'
+        type: boolean
+        default: false
+      check_artifacts:
+        description: 'Scan node_modules for IOC artifacts'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Run chaindrop-scan
+        run: |
+          ARGS=""
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.fetch }}" = "true" ]; then
+            ARGS="$ARGS --fetch"
+          fi
+          if [ "${{ inputs.check_artifacts }}" = "true" ]; then
+            ARGS="$ARGS --check-artifacts"
+          fi
+          node scripts/chaindrop-scan.mjs $ARGS
